@@ -1,0 +1,54 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Reg_Despl is
+	generic (ancho : integer :=11);
+	port (
+			serin			:in std_logic;
+			clk			:in std_logic;
+			reset_low 	:in std_logic;
+			data 			:in std_logic_vector(0 to ancho-1);
+			load_shift	:in std_logic;
+			serout		:out std_logic
+			);
+end Reg_Despl;
+
+architecture behav of Reg_Despl is
+
+	--Declaro componente FFD con reset asincronico y carga sincronica.
+	component FFD is 
+		port(
+				d				:in std_logic;
+				data 			:in std_logic;
+				reset_low	:in std_logic;
+				clk 			:in std_logic;
+				load_shift	:in std_logic;
+				q 				:out std_logic		
+				);
+	end component;
+	
+	--Señal interna entre FFD de registr.
+	signal intercon :std_logic_vector(0 to ancho-1);
+	
+	--Señal auxiliar de salida.
+	signal bus_out :std_logic;
+	
+begin 
+	
+	reg_despl: 	for i in 0 to ancho-1 generate
+						primero: if(i = 0) generate
+										priff: FFD port map (clk => clk, reset_low => reset_low, load_shift => load_shift, d => serin, data => data(i), q => intercon(i));
+									end generate;
+		
+						medios: 	if (i /= 0 and i /= ancho-1) generate 
+										medff: FFD port map (clk => clk, reset_low => reset_low, load_shift => load_shift, d=> intercon(i-1), data => data(i), q => intercon(i));
+									end generate;
+		
+						ultimo: 	if(i = ancho-1) generate
+										ultff: FFD port map (clk => clk, reset_low => reset_low, load_shift => load_shift, d => intercon (i-1),data => data(i), q=> bus_out);
+									end generate;
+	end generate reg_despl;
+	
+	serout <= bus_out;
+	
+end behav;
