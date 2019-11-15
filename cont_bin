@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity contador_bin is
+entity cont_bin is
 	port (
 			start			:in std_logic;
 			clk			:in std_logic;
@@ -10,7 +10,7 @@ entity contador_bin is
 			);
 end entity;
 
-architecture behav of contador_bin is 
+architecture behav of cont_bin is 
 
 --Señal de conteo.
 signal cont	:integer range 0 to 10;
@@ -22,12 +22,12 @@ signal bus_out	:std_logic;
 begin 
 
 
-	contador: process(clk,reset_low)
+	contador: process(clk,reset_low,start)
 	begin
 		if (reset_low = '0') then 
 			cont <= 0;
 			bus_out <= '0';
-		elsif (clk'event and clk = '1') then
+		elsif (clk'event and clk = '1' and start = '1') then
 			cont <= cont + 1;
 			if cont = 10 then 
 				cont	<= 0;
