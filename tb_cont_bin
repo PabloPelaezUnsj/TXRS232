@@ -9,18 +9,18 @@ architecture behav of tb_cont_bin is
 	--Declaro componente a testear.
 	component cont_bin is 
 		port (
-				start			:in std_logic;
-				clk			  :in std_logic;
+				start		:in std_logic;
+				clk		:in std_logic;
 				reset_low	:in std_logic;
-				ok				:out std_logic
+				ok		:out std_logic
 				);
 		end component;
 		
 	--Señales test bench:
-	signal start_tb 		:std_logic := '0';
-	signal clk_tb			  :std_logic := '0';
+	signal start_tb 	:std_logic := '0';
+	signal clk_tb		:std_logic := '0';
 	signal reset_low_tb	:std_logic := '0';
-	signal ok_tb				:std_logic;
+	signal ok_tb		:std_logic;
 				
 	constant clk_semiperiod : time := 50 us;			
 				
