@@ -10,10 +10,10 @@ architecture behav of tb_Reg_Despl is
 	component Reg_Despl is 
 		generic (ancho : integer :=11);
 		port (
-				serin			:in std_logic;
-				clk			:in std_logic;
+				serin		:in std_logic;
+				clk		:in std_logic;
 				reset_low 	:in std_logic;
-				data 			:in std_logic_vector(0 to ancho-1);
+				data 		:in std_logic_vector(0 to ancho-1);
 				load_shift	:in std_logic;
 				serout		:out std_logic
 				);
@@ -23,11 +23,11 @@ architecture behav of tb_Reg_Despl is
 	
 	--Defino señales de tb.
 	signal serin_tb		:std_logic	:='1';
-	signal clk_tb			:std_logic	:='0';
+	signal clk_tb		:std_logic	:='0';
 	signal reset_low_tb 	:std_logic	:='0';
-	signal data_tb			:std_logic_vector(0 to ancho-1);
+	signal data_tb		:std_logic_vector(0 to ancho-1);
 	signal load_shift_tb	:std_logic	:='0';
-	signal serout_tb		:std_logic;
+	signal serout_tb	:std_logic;
 	
 	constant clk_semiperiod : time := 50us;
 	
