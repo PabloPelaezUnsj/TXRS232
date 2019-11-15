@@ -4,9 +4,9 @@ use ieee.std_logic_1164.all;
 entity FSM_Reg_Despl is
 	port (
 			start_tx	:in std_logic;
-			cont_ok	:in std_logic;
+			cont_ok		:in std_logic;
 			clk		:in std_logic;
-			reset_low:in std_logic;
+			reset_low	:in std_logic;
 			l_s		:out std_logic
 			);
 end FSM_Reg_Despl;
