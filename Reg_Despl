@@ -6,10 +6,10 @@ entity Reg_Despl is
 	port (
 			serin			:in std_logic;
 			clk			:in std_logic;
-			reset_low 	:in std_logic;
+			reset_low 		:in std_logic;
 			data 			:in std_logic_vector(0 to ancho-1);
-			load_shift	:in std_logic;
-			serout		:out std_logic
+			load_shift		:in std_logic;
+			serout			:out std_logic
 			);
 end Reg_Despl;
 
@@ -18,12 +18,12 @@ architecture behav of Reg_Despl is
 	--Declaro componente FFD con reset asincronico y carga sincronica.
 	component FFD is 
 		port(
-				d				:in std_logic;
-				data 			:in std_logic;
+				d		:in std_logic;
+				data 		:in std_logic;
 				reset_low	:in std_logic;
-				clk 			:in std_logic;
+				clk 		:in std_logic;
 				load_shift	:in std_logic;
-				q 				:out std_logic		
+				q 		:out std_logic		
 				);
 	end component;
 	
