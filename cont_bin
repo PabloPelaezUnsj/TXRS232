@@ -3,10 +3,10 @@ use ieee.std_logic_1164.all;
 
 entity cont_bin is
 	port (
-			start			:in std_logic;
-			clk			:in std_logic;
+			start		:in std_logic;
+			clk		:in std_logic;
 			reset_low	:in std_logic;
-			ok				:out std_logic
+			ok		:out std_logic
 			);
 end entity;
 
