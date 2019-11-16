@@ -1,0 +1,68 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Punto_A is
+	generic (ancho : integer :=11);
+	port (
+			start_tx		:in std_logic;
+			clk 			  :in std_logic;
+			reset_low 	:in std_logic;
+			data			  :in std_logic_vector (0 to ancho-1);
+			serout 		  :out std_logic
+			);
+end Punto_A;
+
+architecture behav of Punto_A is
+
+	--Declaro Registro de Desplazamiento.
+	component Reg_Despl is
+		generic (ancho : integer :=11);
+		port(
+				serin			  :in std_logic;
+				clk			    :in std_logic;
+				reset_low 	:in std_logic;
+				data 			  :in std_logic_vector(0 to ancho-1);
+				load_shift	:in std_logic;
+				serout		  :out std_logic
+				);
+	end component;
+	
+	--Declaro Contador binario.
+	component cont_bin is
+		port(
+				start			  :in std_logic;
+				clk			    :in std_logic;
+				reset_low	  :in std_logic;
+				ok				  :out std_logic
+				);
+	end component;
+	
+	--Declaro FSM controladora del registro.
+	component FSM_Reg_Despl is
+		port(
+				start_tx		:in std_logic;
+				cont_ok		  :in std_logic;
+				clk			    :in std_logic;
+				reset_low	  :in std_logic;
+				l_s			    :out std_logic;
+				start_cont	:out std_logic
+				);
+	end component;
+	
+	--Declaracion de señales.
+	signal l_s_bus			  	:std_logic;
+	signal serout_bus	  		:std_logic;
+	signal start_cont_bus 	:std_logic;
+	signal cont_ok_bus		  :std_logic;
+	
+begin
+
+	Reg: Reg_Despl port map (serin => '1' , clk => clk, reset_low => reset_low, data => data, load_shift => l_s_bus, serout => serout_bus );
+	
+	Cont: cont_bin port map (start => start_cont_bus, clk => clk, reset_low => reset_low, ok => cont_ok_bus);
+	
+	FSM: FSM_Reg_Despl port map (start_tx => start_tx, cont_ok => cont_ok_bus, clk => clk, reset_low => reset_low, l_s => l_s_bus, start_cont => start_cont_bus);
+	
+	serout <= serout_bus;
+
+end behav;
