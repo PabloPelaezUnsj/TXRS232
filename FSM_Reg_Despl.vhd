@@ -3,11 +3,12 @@ use ieee.std_logic_1164.all;
 
 entity FSM_Reg_Despl is
 	port (
-			start_tx	:in std_logic;
+			start_tx		:in std_logic;
 			cont_ok		:in std_logic;
-			clk		:in std_logic;
+			clk			:in std_logic;
 			reset_low	:in std_logic;
-			l_s		:out std_logic
+			l_s			:out std_logic;
+			start_cont	:out std_logic
 			);
 end FSM_Reg_Despl;
 
@@ -28,7 +29,7 @@ begin
 	--Proceso de estado presente.
 	cs_pr: process (clk,reset_low) 
 	begin 
-		if reset_low = '1' then 
+		if reset_low = '0' then 
 			current_state <= idle;
 		elsif (rising_edge(clk)) then 
 			current_state <= next_state;
@@ -66,15 +67,15 @@ begin
 	--Proceso de salida Moore.
 	moore_pr: process (current_state)
 	begin 
-		l_s	<= '0';	--Valor por default.
+		l_s			<= '0';	--Valor por default.
+		start_cont 	<= '0';	--Valor por default.	
 		case current_state is 
 			when idle => null;
 			when load_shift => 
 				l_s <= '1';
 			when cont_down =>
-				l_s <= '0';
-			when finished => 
-				l_s <= '0';
+				start_cont <= '1';
+			when finished => null;
 			when others => null;
 		end case;
 	end process;
