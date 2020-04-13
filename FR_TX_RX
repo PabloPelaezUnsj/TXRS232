@@ -1,0 +1,70 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Fr_TX_RX is 
+	port (
+			entradas 	:in std_logic_vector (1 downto 0);
+			rst 			:in std_logic;
+			clk			:in std_logic;
+			fr_sal 		:out std_logic
+			);
+end entity;
+
+architecture behav of Fr_TX_RX is 
+
+	--Declaro el componente del sincronizador.
+	component Punto_A 
+		port (asyncin, clock, reset	:in std_logic;
+				syncin 						:out std_logic
+				);
+	end component;
+
+	--Declaro componente antirebote
+	component antireb 
+		port (clk			: in std_logic;
+				ent_actual	: in std_logic;
+				rst_low 		: in std_logic;
+				sal			: out std_logic
+				);
+	end component;
+	
+	--Declaro Mx de 3*8.
+	component Mux
+		generic (ent_sel: integer:= 2);
+		port (
+			mux_input	: in 	std_logic_vector ((2**ent_sel)-1 downto 0);						
+			mux_sel		: in std_logic_vector (ent_sel-1 downto 0);
+			mux_hab		: in std_logic;
+			mux_out 		: out std_logic			
+			);
+	end component;	
+	
+	--Declaro divisores de frecuencia.
+	component divisores is
+	port (
+			clk			:in std_logic;
+			clk_out_0	:out std_logic;	--9600 baud
+			clk_out_1	:out std_logic;	--4800 baud
+			clk_out_2	:out std_logic;	--38400 baud
+			clk_out_3	:out std_logic		--115200 baud
+		);
+	end component;
+
+	--Señales auxiliares de conexion.
+	signal antiTosinc : std_logic_vector (1 downto 0);
+	signal sincTomux  : std_logic_vector (1 downto 0);
+	signal divTomux 	: std_logic_vector (3 downto 0);
+	
+begin 
+
+	antireb1: antireb port map (clk => clk, ent_actual => entradas(0), rst_low => rst, sal => antiTosinc(0));
+	antireb2: antireb port map (clk => clk, ent_actual => entradas(1), rst_low => rst, sal => antiTosinc(1));
+	
+	sinc1: Punto_A port map (asyncin => antiTosinc(0), clock => clk, reset => rst, syncin => sincTomux(0));
+	sinc2: Punto_A port map (asyncin => antiTosinc(1), clock => clk, reset => rst, syncin => sincTomux(1));
+
+	divisor_frec: divisores port map (clk => clk, clk_out_0 => divTomux(0), clk_out_1 => divTomux(1), clk_out_2 => divTomux(2), clk_out_3 => divTomux(3) );
+	
+	multiplexor: Mux port map (mux_input => divTomux, mux_sel => sincTomux, mux_hab => rst, mux_out => fr_sal);
+	
+end behav;
