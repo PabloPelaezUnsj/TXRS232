@@ -1,0 +1,57 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity tb_Fr_TX_RX is 
+end entity;
+
+architecture behav of tb_Fr_TX_RX is 
+	
+	--Declaro componente a testear.
+	component Fr_TX_RX is 
+	port (
+			entradas 	:in std_logic_vector (1 downto 0);
+			rst 			:in std_logic;
+			clk			:in std_logic;
+			fr_sal 		:out std_logic
+			);
+	end component;
+
+	--Declaro señales.
+	signal entradas_tb	: std_logic_vector (1 downto 0) :="11";
+	signal rst_tb 			:std_logic := '0';
+	signal clk_tb 			:std_logic := '0';
+	signal fr_sal_tb 		:std_logic;
+	
+	constant semiperiodo : time := 10ns;
+	
+begin 
+	dut: FR_TX_RX port map (entradas => entradas_tb, rst => rst_tb, clk => clk_tb, fr_sal => fr_sal_tb);
+	
+	clk_gen: clk_tb <= not clk_tb after semiperiodo; 
+	
+	data_gen: process
+		begin 
+			
+			--Empieza con 115200 bdps.
+			wait for 11 ms;
+			rst_tb <= '1';
+			wait for 300 ms;
+			
+			--Ahora con 38400 bdps.
+			entradas_tb <= "10";
+			wait for 600 ms;
+			
+			--Ahora con 4800 bdps.
+			entradas_tb <= "01";
+			wait for 1100 ms;
+			
+			--Ahora con 9600			
+			entradas_tb <= "00";
+			wait for 2100 ms;
+			
+			rst_tb <= '0';
+			wait for 1000 ms;
+					
+		end process;
+		
+end behav;
