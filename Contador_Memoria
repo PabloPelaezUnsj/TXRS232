@@ -1,0 +1,79 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_arith.all;
+
+
+entity Contador_memoria is 
+	port (
+			entradas		:in std_logic_vector(4 downto 0);
+			clk 			:in std_logic;
+			reset_low	:in std_logic;
+			send_ready		:out std_logic;
+			address_out	:out std_logic_vector (5 downto 0)
+			);
+end Contador_memoria;
+
+architecture behav of Contador_memoria is 
+
+	--Señales de conteo.
+	signal cont	:integer range 0 to 38;
+		
+	--Señal de seleccion de opcion de palabras.
+	signal opcion	:std_logic_vector(4 downto 0);
+	signal proceso	:std_logic_vector(4 downto 0);
+		
+	--Señales auxiliar de salida 
+	signal contTosend_ready		:std_logic;
+	signal contToaddress_out 	:std_logic_vector (5 downto 0);
+		
+begin 
+
+	opciones: for i in 0 to 4 generate
+		opcion(i) <= '1' when entradas(i) = '1' else '0' when reset_low = '0';
+	end generate opciones;
+	
+	with opcion select 
+		proceso <=	"00001" when "00001",
+						"00010" when "00010",
+						"00100" when "00100",
+						"01000" when "01000",
+						"10000" when "10000",
+						"00000" when others;
+	
+	
+	contador: process (clk,reset_low)	
+		begin
+			if (reset_low = '0') then 
+				cont <= 0;	
+				contTosend_ready <= '0';
+				contToaddress_out <= "ZZZZZZ";
+			elsif (clk'event and clk = '1') then  
+				if((cont = 24 and proceso = "00001") or (cont = 5 and proceso = "00010") or (cont = 5 and proceso = "00100") or (cont = 4 and proceso = "01000") or (cont = 38 and proceso = "10000")) then 
+					cont <= 0;
+					contTosend_ready <= '1';
+					contToaddress_out <= "ZZZZZZ";
+				else 
+					contTosend_ready <= '0';
+					case proceso is 
+						when "00001" => 	contToaddress_out <= conv_std_logic_vector(cont,6);
+												cont <= cont + 1;
+						when "00010" =>	contToaddress_out <= conv_std_logic_vector(cont+24,6);
+												cont <= cont + 1;
+						when "00100" => 	contToaddress_out <= conv_std_logic_vector(cont+29,6);
+												cont <= cont + 1;
+						when "01000" => 	contToaddress_out <= conv_std_logic_vector(cont+34,6);
+												cont <= cont + 1;
+						when "10000" => 	contToaddress_out <= conv_std_logic_vector(cont,6);
+												cont <= cont + 1;
+						when others  =>   contToaddress_out <= "ZZZZZZ"; 
+					end case;
+				end if;	
+			end if;
+		end process;
+	
+	send_ready <= contTosend_ready;
+	address_out	<= contToaddress_out;
+
+end behav;
+	
