@@ -1,0 +1,114 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity FSM_Memoria is
+	port (
+			boton_0			:in std_logic;
+			boton_1			:in std_logic;
+			boton_2			:in std_logic;
+			boton_3			:in std_logic;
+			boton_4			:in std_logic;
+			clk				:in std_logic;
+			send_MEF1		:in std_logic;
+			send_OK			:in std_logic;	
+			reset_low		:in std_logic;
+			opcion_0			:out std_logic;
+			opcion_1			:out std_logic;
+			opcion_2			:out std_logic;
+			opcion_3			:out std_logic;
+			opcion_4			:out std_logic;
+			clk_MEF2 		:out std_logic;
+			reset_MEF2 		:out std_logic
+			);
+end FSM_Memoria;
+
+architecture behav of FSM_Memoria is 
+	--Declaro estados de la FSM.
+	type FSM_states is (idle, entrada_0, entrada_1, entrada_2, entrada_3, entrada_4, clk_contador, espera);	
+	
+	--Declaro las señales de la FSM.
+	signal current_state, next_state : FSM_states;
+	
+	--Establezco el estilo de codificacion.
+	attribute syn_encoding :string;
+	attribute syn_encoding of FSM_states : type is "one_hot";
+
+begin 
+
+	--Proceso de estado presente.
+	cs_pr: process (clk,reset_low) 
+		begin 
+			if reset_low = '0' then 
+				current_state <= idle;
+			elsif (rising_edge(clk)) then 
+				current_state <= next_state;
+			end if;
+		end process;
+		
+	--Proceso de proximo estado.
+	nxs_pr: process (current_state, boton_0, boton_1, boton_2, boton_3, boton_4, send_MEF1, send_OK) 
+		begin 
+			case current_state is 
+				when idle => 
+					if boton_0 = '1' then next_state <= entrada_0; end if;
+					if boton_1 = '1' then next_state <= entrada_1; end if;
+					if boton_2 = '1' then next_state <= entrada_2; end if;
+					if boton_3 = '1' then next_state <= entrada_3; end if;
+					if boton_4 = '1' then next_state <= entrada_4; end if;
+				when entrada_0 =>
+					next_state <= clk_contador;
+				when entrada_1 => 
+					next_state <= clk_contador;
+				when entrada_2 => 
+					next_state <= clk_contador;
+				when entrada_3 => 
+					next_state <= clk_contador;
+				when entrada_4 => 
+					next_state <= clk_contador;
+				when clk_contador => 
+					if (send_MEF1 = '1') then 
+						next_state <= espera;
+					end if;
+				when espera =>
+					if (send_MEF1 = '0') then 
+						next_state <= espera;
+					elsif (send_OK = '1') then 
+						next_state <= idle; 
+					else 
+						next_state <= clk_contador;
+					end if;
+			end case;
+		end process;
+		
+	--Proceso de salida Moore.
+	moore_pr: process (current_state)
+		begin 
+			--Valores por default de salidas.
+			opcion_0 <= '0';
+			opcion_1 <= '0';
+			opcion_2 <= '0';
+			opcion_3 <= '0';
+			opcion_4 <= '0';
+			clk_MEF2	<= '0';
+			reset_MEF2 <= '0';
+			case current_state is 
+				when idle =>
+					reset_MEF2 <= '1';
+				when entrada_0 =>
+					opcion_0 <= '1';
+				when entrada_1 =>
+					opcion_1 <= '1';
+				when entrada_2 =>
+					opcion_2 <= '1';
+				when entrada_3 => 
+					opcion_3 <= '1';
+				when entrada_4 => 
+					opcion_4 <= '1';
+				when clk_contador =>
+					clk_MEF2 <= '1';
+				when espera => null;
+				when others => null;
+			end case;
+		end process;
+	
+end behav;
